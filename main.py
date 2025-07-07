@@ -1,4 +1,4 @@
-from agents_core.ManagerAgent import MultiAgentSystem
+from agents_core.Manager import MultiAgentSystem
 from models.QwenModel import QwenFTModel, QwenFTModelVLLM
 from models_core.chat_session import ChatManage
 

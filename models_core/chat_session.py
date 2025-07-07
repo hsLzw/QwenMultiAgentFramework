@@ -83,6 +83,12 @@ class ChatSession:
 	def get_plan(self):
 		return self.plan
 
+	def get_plan_str(self):
+		plan_str = ""
+		for i in self.plan["plan"]:
+			plan_str += f'''Step{i["step_id"]}- {i["step"]}\n'''
+		return plan_str
+
 	def add_history(self, message):
 		self.chat_history.append(message)
 

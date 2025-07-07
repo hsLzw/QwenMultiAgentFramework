@@ -38,6 +38,7 @@ class EvaluationAgent(BaseAgent):
 
 	def get_system_tip(self):
 		return f'''
+		**请深度思考**
 		你是一个评估对话的助手，请根据历史聊天评估是否完整回答了用户问题，需要注意以下几点:
 			- 指定的相关步骤是否全部执行了
 			- 每个工具调用的结果是否能够满足回答用户问题的需要
@@ -56,7 +57,7 @@ class EvaluationAgent(BaseAgent):
 		"""
 		执行推理并返回结果
 		"""
-		response = self.generate(self.get_input(chat_session, *args), tools=self.tools, temperature=0.7, prompt=self.get_prompt(chat_session, *args))
+		response = self.generate(self.get_input(chat_session, *args), tools=self.tools, temperature=0.4, prompt=self.get_prompt(chat_session, *args))
 		# 提取计划 如有
 		evaluate_status = self.get_evaluate(super().deal_response(response))
 		return evaluate_status
