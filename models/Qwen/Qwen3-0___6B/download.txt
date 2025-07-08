@@ -1,0 +1,4 @@
+ModelScope: modelscope download --model Qwen/Qwen3-0.6B --cache_dir models
+HugginFace: 自己找吧= = 
+
+

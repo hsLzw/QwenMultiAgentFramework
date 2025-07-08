@@ -9,6 +9,7 @@ from agents_core.agents.UserAccAgent import UserAccountAgent
 
 from agents_core.base_agent import BaseAgent
 from models.QwenModel import QwenFTModel
+from rag_storage.RagAgent import SearchRAG
 
 
 class MultiAgentSystem:
@@ -16,7 +17,8 @@ class MultiAgentSystem:
 
 	def __init__(self, llm):
 		self.llm = llm
-
+		# 生成RAG_AGENT
+		self.rag_agent = SearchRAG(self.llm)
 		# 初始化各类Agent
 		self.current_agent = CurrentAgent(self.llm)
 		self.user_account_agent = UserAccountAgent(self.llm)
@@ -102,6 +104,13 @@ class MultiAgentSystem:
 
 	def process_user_request(self, chat_session) -> str:
 		"""处理用户请求的主流程，支持迭代处理"""
+		# 仅测试rag
+		only_rag = True
+		# 测试RAG
+		rag_response = self.rag_agent.run(chat_session)
+		chat_session.add_history({"role": "assistant", "content": f'''<|object_ref_start|>{rag_response}<|object_ref_end|>'''})
+		if only_rag:
+			return rag_response
 		# 计划制定
 		plan = self.plan_agent.run(chat_session)
 		# 加入计划

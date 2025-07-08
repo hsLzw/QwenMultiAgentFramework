@@ -1,86 +1,52 @@
-# Copyright 2023 The Qwen team, Alibaba Group. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+'''
+向量库使用测试
+'''
+import sqlite3
+import os
+import chromadb
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from chromadb.utils.embedding_functions import CohereEmbeddingFunction
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import RetrievalQA
+from langchain_community.llms import HuggingFacePipeline
+from langchain.schema import Document
+from transformers import pipeline
 
-"""An agent implemented by assistant with qwen3"""
-import os  # noqa
+# 配置路径
+SQLITE_PATH = "rag_storage/storage/rag_vec_db/chroma.sqlite3"  # SQLite数据库路径
+VECTOR_DB_DIR = "rag_storage/storage/rag_vec_db/"  # 向量数据库持久化路径
+COLLECTION_NAME = "test"
 
-from qwen_agent.agents import Assistant
-from qwen_agent.gui import WebUI
-from qwen_agent.utils.output_beautify import typewriter_print
+embedding_model = HuggingFaceEmbeddings(
+    # 支持多语言，384维向量
+    model_name="models/sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cuda:0'},
+    # 归一化向量，提升相似度计算精度
+    encode_kwargs={'normalize_embeddings': True}
+)
+
+client = chromadb.PersistentClient(path="rag_storage/storage/rag_vec_db")
+client.heartbeat()
+
+vector_db = Chroma(
+    client=client,
+    collection_name="test",
+    embedding_function=embedding_model  # 指定 embedding 模型
+)
+
+results = vector_db.similarity_search("什么是量子？", k=3)
+
+print(results)
+for i in results:
+    print(i.page_content)
+    print(i.metadata["source"])
+    print(i.metadata["id"])
 
 
-def init_agent_service():
-    llm_cfg = {
-        # Use the model service provided by DashScope:
-        'model': 'qwen3-235b-a22b',
-        'model_type': 'qwen_dashscope',
 
-        # 'generate_cfg': {
-        #     # When using the Dash Scope API, pass the parameter of whether to enable thinking mode in this way
-        #     'enable_thinking': False,
-        # },
-    }
-    # llm_cfg = {
-    #     # Use the OpenAI-compatible model service provided by DashScope:
-    #     'model': 'qwen3-235b-a22b',
-    #     'model_server': 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    #     'api_key': os.getenv('DASHSCOPE_API_KEY'),
-    #
-    #     # 'generate_cfg': {
-    #     #     # When using Dash Scope OAI API, pass the parameter of whether to enable thinking mode in this way
-    #     #     'extra_body': {
-    #     #         'enable_thinking': False
-    #     #     },
-    #     # },
-    # }
-    # llm_cfg = {
-    #     # Use your own model service compatible with OpenAI API by vLLM/SGLang:
-    #     'model': 'Qwen/Qwen3-32B',
-    #     'model_server': 'http://localhost:8000/v1',  # api_base
-    #     'api_key': 'EMPTY',
-    #
-    #     'generate_cfg': {
-    #         # When using vLLM/SGLang OAI API, pass the parameter of whether to enable thinking mode in this way
-    #         'extra_body': {
-    #             'chat_template_kwargs': {'enable_thinking': False}
-    #         },
-    #
-    #         # Add: When the content is `<think>this is the thought</think>this is the answer`
-    #         # Do not add: When the response has been separated by reasoning_content and content
-    #         # This parameter will affect the parsing strategy of tool call
-    #         # 'thought_in_content': True,
-    #     },
-    # }
-    tools = [
-        {
-            'mcpServers': {  # You can specify the MCP configuration file
-                'time': {
-                    'command': 'uvx',
-                    'args': ['mcp-server-time', '--local-timezone=Asia/Shanghai']
-                },
-                'fetch': {
-                    'command': 'uvx',
-                    'args': ['mcp-server-fetch']
-                }
-            }
-        },
-        'code_interpreter',  # Built-in tools
-    ]
-    bot = Assistant(llm=llm_cfg,
-                    function_list=tools,
-                    name='Qwen3 Tool-calling Demo',
-                    description="I'm a demo using the Qwen3 tool calling. Welcome to add and play with your own tools!")
 
-    return bot
+
+
+
 

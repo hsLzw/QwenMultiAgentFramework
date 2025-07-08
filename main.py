@@ -16,7 +16,7 @@ if __name__ == "__main__":
 	this_chat_session = chat_manager.get_user_session(chat_sid, auto_create=True)
 
 	# 复杂问题示例
-	user_input = "帮我注册一个账号"
+	user_input = "什么是量子？"
 
 	# 初始化session
 	this_chat_session.init_current_input(user_input)

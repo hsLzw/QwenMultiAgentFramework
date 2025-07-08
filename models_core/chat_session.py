@@ -70,6 +70,12 @@ class ChatSession:
 		self.plan = {}
 		return
 
+	def get_near_user(self):
+		for dt in self.chat_history[::-1]:
+			if ("role" in dt) and (dt["role"] == "user"):
+				return dt
+		raise Exception("无用户对话。")
+
 	def get_current_input(self, use_history=True):
 		return self.chat_history
 

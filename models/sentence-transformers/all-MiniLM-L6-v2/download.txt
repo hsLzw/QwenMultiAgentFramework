@@ -1,0 +1,4 @@
+ModelScope: modelscope download --model sentence-transformers/all-MiniLM-L6-v2 --cache_dir models
+HugginFace: 自己找吧= = 
+
+

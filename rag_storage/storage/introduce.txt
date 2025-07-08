@@ -1,0 +1,1 @@
+运行create_storage_temp.py自动生成

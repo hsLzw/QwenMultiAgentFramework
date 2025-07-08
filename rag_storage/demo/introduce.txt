@@ -1,0 +1,4 @@
+datasets from: https://modelscope.cn/datasets/hongxda/PhysicBench/files
+
+中文量子力学数据集
+hongxda/PhysicBench
